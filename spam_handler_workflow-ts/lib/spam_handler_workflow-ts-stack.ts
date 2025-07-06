@@ -1,9 +1,6 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, aws_logs as logs } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
-
-
 
 export class SpamHandlerWorkflowTsStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,10 +10,18 @@ export class SpamHandlerWorkflowTsStack extends Stack {
       comment: 'This is a simple pass state',
     });
 
+    const logGroup = new logs.LogGroup(this, "StepFunctionLogGroup", {
+      logGroupName: "/aws/vendedlogs/states/ParallelTasksLogGroupTs"
+    });
+
     new sfn.StateMachine(this, 'SimpleStateMachine', {
       definitionBody: sfn.DefinitionBody.fromChainable(passState),
       stateMachineType: sfn.StateMachineType.EXPRESS,
+      logs: {
+        destination: logGroup,
+        level: sfn.LogLevel.ALL,
+        includeExecutionData: true,
+      }
     });
   }
 }
-

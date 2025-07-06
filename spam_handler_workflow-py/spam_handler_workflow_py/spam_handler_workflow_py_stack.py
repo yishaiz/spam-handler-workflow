@@ -1,8 +1,10 @@
 from aws_cdk import (
     Stack,
-    aws_stepfunctions as sfn
+    aws_stepfunctions as sfn,
+    aws_logs as logs,
 )
 from constructs import Construct
+
 
 class SpamHandlerWorkflowPyStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
@@ -11,6 +13,18 @@ class SpamHandlerWorkflowPyStack(Stack):
         pass_state = sfn.Pass(self, "PassState",
                               comment="This is a simple pass state")
 
-        sfn.StateMachine(self, "SimpleStateMachine",
-                         definition_body=sfn.DefinitionBody.from_chainable(pass_state),
-                         state_machine_type=sfn.StateMachineType.EXPRESS)
+        log_group = logs.LogGroup(
+            self, "StepFunctionLogGroup",
+            log_group_name="/aws/vendedlogs/states/ParallelTasksLogGroup"
+        )
+
+        sfn.StateMachine(
+            self, "SimpleStateMachine",
+            state_machine_type=sfn.StateMachineType.EXPRESS,
+            definition_body=sfn.DefinitionBody.from_chainable(pass_state),
+            logs=sfn.LogOptions(
+                destination=log_group,
+                level=sfn.LogLevel.ALL,
+                include_execution_data=True
+            )
+        )
