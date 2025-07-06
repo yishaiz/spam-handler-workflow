@@ -11,28 +11,25 @@ class SpamHandlerWorkflowPyStack(Stack):
 
         log_group = logs.LogGroup(self, "LogGroup")
 
-        # Start step
         start = sfn.Pass(self, "Start")
 
-        # Choice step: InContactList
         in_contact_list = sfn.Choice(self, "InContactList")
 
-        # Pass step: Add to Known Folder
         add_to_known_folder = sfn.Pass(self, "Add to Known Folder")
+        handle_invalid = sfn.Pass(self, "Invalid Input")
 
-        # Logic - both true and false go to same Pass for now
         in_contact_list.when(
             sfn.Condition.boolean_equals("$.is_contact", True),
             add_to_known_folder
         ).when(
             sfn.Condition.boolean_equals("$.is_contact", False),
             add_to_known_folder
+        ).otherwise(
+            handle_invalid
         )
 
-        # Chain steps
         definition = start.next(in_contact_list)
 
-        # State machine
         sfn.StateMachine(
             self, "StateMachine",
             definition_body=sfn.DefinitionBody.from_chainable(definition),
