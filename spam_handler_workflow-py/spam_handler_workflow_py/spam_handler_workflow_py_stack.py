@@ -1,8 +1,7 @@
 from aws_cdk import (
     Stack,
     aws_stepfunctions as sfn,
-    aws_logs as logs,
-    Duration
+    aws_logs as logs
 )
 from constructs import Construct
 
@@ -11,24 +10,36 @@ class SpamHandlerWorkflowPyStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         log_group = logs.LogGroup(self, "LogGroup")
+
+        # Start step
         start = sfn.Pass(self, "Start")
 
-        wait = sfn.Wait(self, "Wait5Seconds",
-                        time=sfn.WaitTime.duration(Duration.seconds(5)))
+        # Choice step: InContactList
+        in_contact_list = sfn.Choice(self, "InContactList")
 
-        success = sfn.Pass(self, "Success")
+        # Pass step: Add to Known Folder
+        add_to_known_folder = sfn.Pass(self, "Add to Known Folder")
 
-        choice = sfn.Choice(self, "ShouldWait?")
-        choice.when(sfn.Condition.boolean_equals("$.wait", True), wait.next(success))
-        choice.otherwise(success)
+        # Logic - both true and false go to same Pass for now
+        in_contact_list.when(
+            sfn.Condition.boolean_equals("$.is_contact", True),
+            add_to_known_folder
+        ).when(
+            sfn.Condition.boolean_equals("$.is_contact", False),
+            add_to_known_folder
+        )
 
-        definition = start.next(choice)
+        # Chain steps
+        definition = start.next(in_contact_list)
 
-        sfn.StateMachine(self, "StateMachine",
-                         definition_body=sfn.DefinitionBody.from_chainable(definition),
-                         state_machine_type=sfn.StateMachineType.EXPRESS,
-                         logs=sfn.LogOptions(
-                             destination=log_group,
-                             level=sfn.LogLevel.ALL,
-                             include_execution_data=True
-                         ))
+        # State machine
+        sfn.StateMachine(
+            self, "StateMachine",
+            definition_body=sfn.DefinitionBody.from_chainable(definition),
+            state_machine_type=sfn.StateMachineType.EXPRESS,
+            logs=sfn.LogOptions(
+                destination=log_group,
+                level=sfn.LogLevel.ALL,
+                include_execution_data=True
+            )
+        )
