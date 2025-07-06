@@ -5,7 +5,6 @@ from aws_cdk import (
 )
 from constructs import Construct
 
-
 class SpamHandlerWorkflowPyStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
@@ -15,7 +14,7 @@ class SpamHandlerWorkflowPyStack(Stack):
 
         log_group = logs.LogGroup(
             self, "StepFunctionLogGroup",
-            log_group_name="/aws/vendedlogs/states/ParallelTasksLogGroup"
+            log_group_name="/aws/vendedlogs/states/ParallelTasksLogGroupNewPy"
         )
 
         sfn.StateMachine(

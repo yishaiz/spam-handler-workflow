@@ -11,7 +11,7 @@ export class SpamHandlerWorkflowTsStack extends Stack {
     });
 
     const logGroup = new logs.LogGroup(this, "StepFunctionLogGroup", {
-      logGroupName: "/aws/vendedlogs/states/ParallelTasksLogGroupTs"
+      logGroupName: "/aws/vendedlogs/states/ParallelTasksLogGroupNewTs"
     });
 
     new sfn.StateMachine(this, 'SimpleStateMachine', {
