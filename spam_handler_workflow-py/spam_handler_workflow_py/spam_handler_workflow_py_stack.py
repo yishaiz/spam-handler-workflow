@@ -13,20 +13,36 @@ class SpamHandlerWorkflowPyStack(Stack):
 
         start = sfn.Pass(self, "Start")
 
-        in_contact_list = sfn.Choice(self, "InContactList")
+        
 
         add_to_known_folder = sfn.Pass(self, "Add to Known Folder")
         handle_invalid = sfn.Pass(self, "Invalid Input")
 
-        in_contact_list.when(
-            sfn.Condition.boolean_equals("$.is_contact", True),
+        choice = sfn.Choice(self, "InContactList")
+
+        choice.when(
+            sfn.Condition.and_(
+                sfn.Condition.is_present("$.is_contact"),
+                sfn.Condition.or_(
+                    sfn.Condition.boolean_equals("$.is_contact", True),
+                    sfn.Condition.boolean_equals("$.is_contact", False)
+                )
+            ),
             add_to_known_folder
-        ).when(
-            sfn.Condition.boolean_equals("$.is_contact", False),
-            add_to_known_folder
-        ).otherwise(
-            handle_invalid
-        )
+        ).otherwise(handle_invalid)
+
+
+        # in_contact_list = sfn.Choice(self, "InContactList")
+
+        # in_contact_list.when(
+        #     sfn.Condition.boolean_equals("$.is_contact", True),
+        #     add_to_known_folder
+        # ).when(
+        #     sfn.Condition.boolean_equals("$.is_contact", False),
+        #     add_to_known_folder
+        # ).otherwise(
+        #     handle_invalid
+        # )
 
         definition = start.next(in_contact_list)
 

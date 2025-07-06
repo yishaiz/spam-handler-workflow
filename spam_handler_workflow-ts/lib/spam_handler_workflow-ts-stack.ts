@@ -13,10 +13,25 @@ export class SpamHandlerWorkflowTsStack extends Stack {
     const addToKnownFolder = new sfn.Pass(this, 'Add to Known Folder');
     const handleInvalid = new sfn.Pass(this, 'Invalid Input');
 
+    // const inContactList = new sfn.Choice(this, 'InContactList')
+    //   .when(sfn.Condition.booleanEquals('$.is_contact', true), addToKnownFolder)
+    //   .when(sfn.Condition.booleanEquals('$.is_contact', false), addToKnownFolder)
+    //   .otherwise(handleInvalid);
+
     const inContactList = new sfn.Choice(this, 'InContactList')
-      .when(sfn.Condition.booleanEquals('$.is_contact', true), addToKnownFolder)
-      .when(sfn.Condition.booleanEquals('$.is_contact', false), addToKnownFolder)
+      .when(
+        sfn.Condition.and(
+          sfn.Condition.isPresent('$.is_contact'),
+          sfn.Condition.or(
+            sfn.Condition.booleanEquals('$.is_contact', true),
+            sfn.Condition.booleanEquals('$.is_contact', false)
+          )
+        ),
+        addToKnownFolder
+      )
       .otherwise(handleInvalid);
+
+
 
     const definition = start.next(inContactList);
 
@@ -31,3 +46,7 @@ export class SpamHandlerWorkflowTsStack extends Stack {
     });
   }
 }
+
+{"is_contact": "aaa"}
+
+{"is_contact": null}
