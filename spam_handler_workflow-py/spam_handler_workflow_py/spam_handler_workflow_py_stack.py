@@ -1,19 +1,16 @@
 from aws_cdk import (
-    # Duration,
     Stack,
-    # aws_sqs as sqs,
+    aws_stepfunctions as sfn
 )
 from constructs import Construct
 
 class SpamHandlerWorkflowPyStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs):
+        super().__init__(scope, id, **kwargs)
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+        pass_state = sfn.Pass(self, "PassState",
+                              comment="This is a simple pass state")
 
-        # The code that defines your stack goes here
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "SpamHandlerWorkflowPyQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
+        sfn.StateMachine(self, "SimpleStateMachine",
+                         definition_body=sfn.DefinitionBody.from_chainable(pass_state),
+                         state_machine_type=sfn.StateMachineType.EXPRESS)
