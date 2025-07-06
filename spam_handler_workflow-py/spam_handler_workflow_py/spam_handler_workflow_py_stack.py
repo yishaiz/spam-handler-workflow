@@ -14,7 +14,7 @@ class SpamHandlerWorkflowPyStack(Stack):
 
         log_group = logs.LogGroup(
             self, "StepFunctionLogGroup",
-            log_group_name="/aws/vendedlogs/states/ParallelTasksLogGroupNewPy"
+            # log_group_name="/aws/vendedlogs/states/ParallelTasksLogGroupNewPy"
         )
 
         sfn.StateMachine(

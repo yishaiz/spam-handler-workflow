@@ -10,8 +10,9 @@ export class SpamHandlerWorkflowTsStack extends Stack {
       comment: 'This is a simple pass state',
     });
 
-    const logGroup = new logs.LogGroup(this, "StepFunctionLogGroup", {
-      logGroupName: "/aws/vendedlogs/states/ParallelTasksLogGroupNewTs"
+    const logGroup = new logs.LogGroup(
+      this, "StepFunctionLogGroup", {
+      // logGroupName: "/aws/vendedlogs/states/ParallelTasksLogGroupNewTs"
     });
 
     new sfn.StateMachine(this, 'SimpleStateMachine', {
