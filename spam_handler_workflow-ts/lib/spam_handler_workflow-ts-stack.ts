@@ -17,7 +17,7 @@ export class SpamHandlerWorkflowTsStack extends Stack {
 
     const knownPath = addToKnownFolder.next(readMessage);
 
-    const    = new sfn.Choice(this, 'IsSpamChoice')
+    const isSpamChoice = new sfn.Choice(this, 'IsSpamChoice')
       .when(sfn.Condition.booleanEquals('$.is_spam', true), deleteMessage)
       .when(sfn.Condition.booleanEquals('$.is_spam', false), knownPath)
       .otherwise(handleInvalid);
