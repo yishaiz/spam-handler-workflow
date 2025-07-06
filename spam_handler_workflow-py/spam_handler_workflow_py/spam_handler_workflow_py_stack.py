@@ -44,7 +44,7 @@ class SpamHandlerWorkflowPyStack(Stack):
         #     handle_invalid
         # )
 
-        definition = start.next(in_contact_list)
+        definition = start.next(choice)
 
         sfn.StateMachine(
             self, "StateMachine",
